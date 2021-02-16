@@ -114,6 +114,17 @@ void ShowUsingClock()
     }
 }
 
+// ref: https://en.cppreference.com/w/cpp/thread/yield
+// for a small amount of time
+void little_sleep(std::chrono::microseconds us)
+{
+    auto start = std::chrono::high_resolution_clock::now();
+    auto end = start + us;
+    do {
+        std::this_thread::yield();
+    } while (std::chrono::high_resolution_clock::now() < end);
+}
+
 void ShowOriginalLogic()
 {
     const unsigned int MAX_FPS = 30;
@@ -136,9 +147,19 @@ void ShowOriginalLogic()
     // measure FPS
     while (true)
     {
-        // do something that takes time
-        this_thread::sleep_for(chrono::milliseconds(FRAME_INTERVAL));
-        ++fps;
+        auto start = std::chrono::high_resolution_clock::now();
+        // you can only wait 1ms once because it can take 20 ms.
+        this_thread::sleep_for(chrono::milliseconds(1));
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = end - start;
+        //std::cout << "Slept " << elapsed.count() << " ms\n";
+
+        // block remainder
+        little_sleep(33ms - std::chrono::duration_cast<std::chrono::microseconds>(elapsed));
+        
+        end = std::chrono::high_resolution_clock::now();
+        elapsed = end - start;
+        //std::cout << "Final frame time: " << elapsed.count() << " ms\n";
 
         // get current time
         gettimeofday(&tpNow, NULL);
@@ -147,7 +168,7 @@ void ShowOriginalLogic()
             (unsigned long long)(tpNow.tv_usec) / 1000;
 
         // print the fps every 1 second
-        if (timerFPS < now)
+        if (timerFPS <= now)
         {
             cout << "FPS: " << fps << endl; //should be 30 FPS
 
@@ -156,6 +177,10 @@ void ShowOriginalLogic()
 
             // get future time
             timerFPS = now + 1000;
+        }
+        else
+        {
+            ++fps;
         }
     }
 }
