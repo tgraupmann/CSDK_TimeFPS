@@ -125,7 +125,7 @@ void little_sleep(std::chrono::microseconds us)
     } while (std::chrono::high_resolution_clock::now() < end);
 }
 
-void ShowOriginalLogic()
+void ShowWorkingLogic()
 {
     const unsigned int MAX_FPS = 30;
     const unsigned int FRAME_INTERVAL = 1000 / MAX_FPS;
@@ -191,7 +191,7 @@ int main()
 
     //ShowUsingClock();
 
-    ShowOriginalLogic();
+    ShowWorkingLogic();
 
     return 0;
 }
