@@ -66,6 +66,61 @@ void ShowUsingClock()
 
     struct timeval tpNow;
 
+    unsigned long long now = 0;
+    unsigned long long timerFPS = now + 1000;
+
+    // frames per second
+    int fps = 0;
+
+    // measure FPS
+    while (true)
+    {
+        // Measure time before task
+        gettimeofday(&tpNow, NULL);
+        unsigned long long timeStart =
+            (unsigned long long)(tpNow.tv_sec) * 1000 +
+            (unsigned long long)(tpNow.tv_usec) / 1000;
+
+        // do something that takes time
+        this_thread::sleep_for(chrono::milliseconds(FRAME_INTERVAL/2)); //sleep half the time ends up taking double
+
+        // Measure time after task
+        gettimeofday(&tpNow, NULL);
+        unsigned long long timeEnd =
+            (unsigned long long)(tpNow.tv_sec) * 1000 +
+            (unsigned long long)(tpNow.tv_usec) / 1000;
+
+        unsigned long long elapsed = (timeEnd - timeStart);
+        cout << "Elapsed: " << elapsed << endl;
+
+        // get current time
+        now += elapsed;
+
+        // print the fps every 1 second
+        if (timerFPS < now)
+        {
+            cout << "FPS: " << fps << endl; //should be 30 FPS
+
+            // reset FPS
+            fps = 0;
+
+            // get future time
+            timerFPS = now + 1000;
+        }
+        else
+        {
+            ++fps;
+        }
+    }
+}
+
+void ShowOriginalLogic()
+{
+    const unsigned int MAX_FPS = 30;
+    const unsigned int FRAME_INTERVAL = 1000 / MAX_FPS;
+
+    struct timeval tpNow;
+
     // get current time
     gettimeofday(&tpNow, NULL);
     unsigned long long now =
@@ -109,7 +164,9 @@ int main()
 {
     //ShowExpected();
 
-    ShowUsingClock();
+    //ShowUsingClock();
+
+    ShowOriginalLogic();
 
     return 0;
 }
