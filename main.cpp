@@ -23,7 +23,43 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp) {
     return 0;
 }
 
-int main()
+void ShowExpected()
+{
+    const unsigned int MAX_FPS = 30;
+    const unsigned int FRAME_INTERVAL = 1000 / MAX_FPS;
+
+    unsigned long long now = 0;
+    unsigned long long timerFPS = now + 1000;
+
+    // frames per second
+    int fps = 0;
+
+    // measure FPS
+    while (true)
+    {
+        // get current time
+        now += FRAME_INTERVAL;
+
+        // print the fps every 1 second
+        if (timerFPS < now)
+        {
+            cout << "FPS: " << fps << endl; //should be 30 FPS
+
+            // reset FPS
+            fps = 0;
+
+            // get future time
+            timerFPS = now + 1000;
+        }
+        else
+        {
+            // do something that takes time
+            ++fps;
+        }
+    }
+}
+
+void ShowUsingClock()
 {
     const unsigned int MAX_FPS = 30;
     const unsigned int FRAME_INTERVAL = 1000 / MAX_FPS;
@@ -67,4 +103,13 @@ int main()
             timerFPS = now + 1000;
         }
     }
+}
+
+int main()
+{
+    //ShowExpected();
+
+    ShowUsingClock();
+
+    return 0;
 }
